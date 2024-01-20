@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <assert.h>
+
 
 typedef struct Node {
     // this size include the metadata size (the node size)
@@ -10,9 +13,10 @@ typedef struct Node {
     struct Node * prev;
     struct Node * next;
 } Node ;
+void printLL(Node * head);
 
 void split(Node * curr, size_t size);
-// void merge(Node * curr, Node * insert);
+void merge(Node * curr);
 
 //First Fit malloc/free
 void * ff_malloc(size_t size);
@@ -21,8 +25,8 @@ void ff_free(void *ptr);
 //void * bf_malloc(size_t size);
 //void bf_free(void *ptr);
 
-// check function will return 0 if there is no fit
-// it will return 1 if there is fit
+// check function will return NULL if there is no fit
+// it will return a pointer to the fitted Node if there is a fit
 Node * checkFF(Node * head, size_t size);
 Node * checkBF(Node * head, size_t size);
 
