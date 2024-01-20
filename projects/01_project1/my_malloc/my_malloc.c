@@ -27,12 +27,23 @@ void split(Node * curr, size_t size) {
     // if need to split
     if (remaining > sizeof(Node)) {
         Node * remain = (Node *)((void *)curr + sizeof(Node) + size);
+        remain->sum_size = remaining;
+        remain->next = curr->next;
+        remain->prev = curr->prev;
+        curr->prev->next = remain;
+        if (curr->next != NULL) {
+            curr->next->prev = remain;
+        }
     }
     // the remains are less than the metadata
     // no need to split
     else {
-
+        curr->prev->next = curr->next;
+        curr->next->prev = curr->prev;
     }
+    curr->sum_size = size + sizeof(Node);
+    curr->prev = NULL;
+    curr->next = NULL;
 }
 
 void * ff_malloc(size_t size) {
@@ -43,7 +54,6 @@ void * ff_malloc(size_t size) {
         if (ptr == (void *) -1) {
             return NULL; // sbrk failed
         }
-
         // save the meta data
         Node * metadata = (Node * )ptr;
         metadata->next = NULL;
@@ -54,16 +64,9 @@ void * ff_malloc(size_t size) {
     }
     // means that there is a node ff that could be used for the malloc
     // check if it need to split
-    else if (ff->sum_size - sizeof(Node) > size) {
-       split(ff, size);
-       ff->prev = NULL;
-       ff->next = NULL;
-       return (void *) ff + sizeof(Node);
-    }
-    // if it doesn't need split
+    // and then return the address at the end of the metadata
     else {
-        ff->prev->next = ff->next;
-        ff->next->prev = ff->prev;
+        split(ff, size);
         return (void *) ff + sizeof(Node);
     }
 }
