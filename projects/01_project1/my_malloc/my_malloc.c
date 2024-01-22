@@ -53,16 +53,13 @@ void split(Node *curr, size_t size) {
         if (curr == ll_head && curr == ll_tail) {
             ll_head = remain;
             ll_tail = remain;
-        }
-        else if (curr == ll_head) {
+        } else if (curr == ll_head) {
             curr->next->prev = remain;
             ll_head = remain;
-        }
-        else if (curr == ll_tail) {
+        } else if (curr == ll_tail) {
             curr->prev->next = remain;
             ll_tail = remain;
-        }
-        else {
+        } else {
             curr->prev->next = remain;
             curr->next->prev = remain;
         }
@@ -81,8 +78,7 @@ void split(Node *curr, size_t size) {
         else if (curr == ll_head) {
             curr->next->prev = NULL;
             ll_head = curr->next;
-        }
-        else if (curr == ll_tail) {
+        } else if (curr == ll_tail) {
             curr->prev->next = NULL;
             ll_tail = curr->prev;
         }
@@ -143,8 +139,7 @@ void merge(Node *curr) {
         curr->prev->sum_size += curr->sum_size;
         if (curr != ll_tail) {
             curr->next->prev = curr->prev;
-        }
-        else {
+        } else {
             ll_tail = curr->prev;
         }
         // update after merge
@@ -168,8 +163,7 @@ void merge(Node *curr) {
         curr->sum_size += curr->next->sum_size;
         if (curr->next != ll_tail) {
             curr->next->next->prev = curr;
-        }
-        else {
+        } else {
             ll_tail = curr;
         }
         curr->next = curr->next->next;
@@ -209,8 +203,7 @@ void ff_free(void *ptr) {
             metadata->prev = curr;
             ll_head = curr;
             ll_tail = metadata;
-        }
-        else {
+        } else {
             // metadata is the first one
             curr->prev = metadata;
             metadata->next = curr;
