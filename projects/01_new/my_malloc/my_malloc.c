@@ -1,8 +1,8 @@
 #include "my_malloc.h"
 
 // linked list
-Node *ll_head = NULL;
-Node *ll_tail = NULL;
+Node * ll_head = NULL;
+Node * ll_tail = NULL;
 unsigned long heap_size = 0;
 //unsigned long free_size = 0;
 size_t node_size = sizeof(Node);
@@ -50,74 +50,43 @@ void split(Node * curr, size_t size) {
         remain->next = curr->next;
         remain->prev = curr->prev;
 
-        // if (curr == ll_head && curr == ll_tail) {
-        //     ll_head = remain;
-        //     ll_tail = remain;
-        // }
-        // else if (curr == ll_head) {
-        //     curr->next->prev = remain;
-        //     ll_head = remain;
-        // }
-        // else if (curr == ll_tail) {
-        //     curr->prev->next = remain;
-        //     ll_tail = remain;
-        // }
-        // else {
-        //     curr->prev->next = remain;
-        //     curr->next->prev = remain;
-        // }
+        // if curr is not head, link curr->prev to remain
         if (curr->prev) {
             curr->prev->next = remain;
         }
+        // if curr is head, update new head
         else {
-            ll_head = remain; // Update head if curr is the first node
+            ll_head = remain; 
         }
-
+        // if curr is not tail, link curr->next to remain
         if (curr->next) {
             curr->next->prev = remain;
         }
+        // if curr is tail, update new tail
         else {
-            ll_tail = remain; // Update tail if the current block was the last one
+            ll_tail = remain;
         }
 
         curr->sum_size = size + sizeof(Node);
-
-        // curr->sum_size -= (size + sizeof(Node));
     }
     // the remains are less than the metadata
     // no need to split
     else {
-        // printf -= curr->sum_size;
-        // if curr is both the head and tail
-        // if (curr == ll_head && curr == ll_tail) {
-        //     ll_head = NULL;
-        //     ll_tail = NULL;
-        // }
-        // // if curr is the head
-        // else if (curr == ll_head) {
-        //     curr->next->prev = NULL;
-        //     ll_head = curr->next;
-        // }
-        // else if (curr == ll_tail) {
-        //     curr->prev->next = NULL;
-        //     ll_tail = curr->prev;
-        // }
-        // // if curr is in the middle
-        // else {
-        //     curr->prev->next = curr->next;
-        //     curr->next->prev = curr->prev;
-        // }
-        // Update links of neighboring nodes
+        // if curr is not head, link curr->prev to its next
         if (curr->prev) {
             curr->prev->next = curr->next;
-        } else {
-            ll_head = curr->next; // Update head if curr is the first node
         }
-
+        // if curr is head, update new head with next node(or NULL)
+        else {
+            ll_head = curr->next;
+        }
+        // if curr is not tail, link the next one to its prev
         if (curr->next) {
             curr->next->prev = curr->prev;
-        } else {
-            ll_tail = curr->prev; // Update tail if curr is the last node
+        }
+        // if curr is tail, update new tail with next node(or NULL)
+        else {
+            ll_tail = curr->prev;
         }
     }
     curr->prev = NULL;
@@ -125,7 +94,7 @@ void split(Node * curr, size_t size) {
 }
 
 
-void *ff_malloc(size_t size) {
+void * ff_malloc(size_t size) {
     // printLL(ll_head);
     // if there is no enough
     Node * ff = checkFF(size);
@@ -138,7 +107,7 @@ void *ff_malloc(size_t size) {
         }
         heap_size += (size + sizeof(Node));
         // save the meta data
-        Node * metadata = (Node * )ptr;
+        Node * metadata = (Node *)ptr;
         metadata->next = NULL;
         metadata->prev = NULL;
         metadata->sum_size = sizeof(Node) + size;
@@ -157,60 +126,32 @@ void *ff_malloc(size_t size) {
     }
 }
 
-// void merge(Node * curr) {
-//     // first check if can merge to the previous one
-//     // if there is an existing prev
-//     if (curr != ll_head && (void *) curr->prev + curr->prev->sum_size == (void *) curr) {
-//         // now merge
-//         curr->prev->next = curr->next;
-//         curr->prev->sum_size += curr->sum_size;
-//         if (curr != ll_tail) {
-//             curr->next->prev = curr->prev;
-//         }
-//         else {
-//             ll_tail = curr->prev;
-//         }
-//         // update after merge
-//         curr = curr->prev;
-//     }
-
-//     // now check if can merge the next one
-//     // if there is an existing next
-//     if (curr != ll_tail && (void *) curr + curr->sum_size == (void *) curr->next) {
-//         // now merge
-//         curr->sum_size += curr->next->sum_size;
-//         if (curr->next != ll_tail) {
-//             curr->next->next->prev = curr;
-//         }
-//         else {
-//             ll_tail = curr;
-//         }
-//         curr->next = curr->next->next;
-//     }
-// }
-
-void merge(Node *curr) {
+void merge(Node * curr) {
     // first check if can merge to the previous one
-    // if there is an existing prev
-    if (curr->prev && (void *)curr->prev + curr->prev->sum_size == (void *)curr) {
-        curr->prev->sum_size += curr->sum_size; // Merge with previous
+    // check if there is an existing prev
+    if (curr->prev && (void *) curr->prev + curr->prev->sum_size == (void *) curr) {
+        // now merge
         curr->prev->next = curr->next;
+        curr->prev->sum_size += curr->sum_size;
         if (curr->next) {
             curr->next->prev = curr->prev;
         } else {
-            ll_tail = curr->prev; // Update tail if necessary
+            ll_tail = curr->prev;
         }
-        curr = curr->prev; // Update current pointer to the merged block
+        // update after merge
+        curr = curr->prev; 
     }
 
-    // Check if the current block can be merged with the next block
-    if (curr->next && (void *)curr + curr->sum_size == (void *)curr->next) {
-        curr->sum_size += curr->next->sum_size; // Merge with next
+    // now check if can merge the next one
+    // check if there is an existing next
+    if (curr->next && (void *) curr + curr->sum_size == (void *) curr->next) {
+        // now merge
+        curr->sum_size += curr->next->sum_size;
         curr->next = curr->next->next;
         if (curr->next) {
             curr->next->prev = curr;
         } else {
-            ll_tail = curr; // Update tail if necessary
+            ll_tail = curr;
         }
     }
 }
@@ -313,13 +254,13 @@ void * bf_malloc(size_t size) {
 
     if (bf == NULL) {
         // printf("Didn't find the valid place!\n");
-        void *ptr = (void *)sbrk(size + sizeof(Node));
+        void * ptr = (void *)sbrk(size + sizeof(Node));
         if (ptr == (void *)-1) {
             return NULL; // sbrk failed
         }
         heap_size += (size + sizeof(Node));
         // save the meta data
-        Node *metadata = (Node *)ptr;
+        Node * metadata = (Node *)ptr;
         metadata->next = NULL;
         metadata->prev = NULL;
         metadata->sum_size = sizeof(Node) + size;
