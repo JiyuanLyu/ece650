@@ -3,8 +3,8 @@
 #include <time.h>
 #include "my_malloc.h"
 
-#define NUM_ITERS    10000
-#define NUM_ITEMS    10000
+#define NUM_ITERS    1000 //10000
+#define NUM_ITEMS    10000 //10000
 #define ALLOC_SIZE   128
 
 #ifdef FF
@@ -39,28 +39,36 @@ int main(int argc, char *argv[])
   struct timespec start_time, end_time;
 
   if (NUM_ITEMS < 10000) {
-    printf("Error: NUM_ITEMS must be >= 1000\n");
+    // printf("Error: NUM_ITEMS must be >= 1000\n");
     return -1;
   } //if
 
   for (i=0; i < NUM_ITEMS; i++) {
+    // printf("Loop 1\n");
     array[i] = (int *)MALLOC(ALLOC_SIZE);
     spacing_array[i] = (int *)MALLOC(ALLOC_SIZE);
+    // printf("Loop 1 end\n");
   } //for i
 
   for (i=0; i < NUM_ITEMS; i++) {
+    // printf("Loop 2\n");
     FREE(array[i]);
+    // printf("Loop 2 end\n");
   } //for i
 
   //Start Time
   clock_gettime(CLOCK_MONOTONIC, &start_time);
 
   for (i=0; i < NUM_ITERS; i++) {
+    // printf("Loop 3\n");
     for (j=0; j < 1000; j++) {
+      // printf("Loop 4\n");
       array[j] = (int *)MALLOC(ALLOC_SIZE);
+      // printf("Loop 4 end\n");
     } //for j
 
     for (j=1000; j < NUM_ITEMS; j++) {
+      // printf("Loop 5\n");
       array[j] = (int *)MALLOC(ALLOC_SIZE);
       FREE(array[j-1000]);
 
@@ -69,11 +77,15 @@ int main(int argc, char *argv[])
 	data_segment_size = get_data_segment_size();
 	data_segment_free_space = get_data_segment_free_space_size();
       } //if
+      // printf("Loop 5 end\n");
     } //for j
 
     for (j=NUM_ITEMS-1000; j < NUM_ITEMS; j++) {
+      // printf("Loop 6\n");
       FREE(array[j]);
+      // printf("Loop 6 end\n");
     } //for j
+    // printf("Loop 3 end\n");
   } //for i
 
   //Stop Time

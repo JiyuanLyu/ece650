@@ -4,6 +4,8 @@
 Node *ll_head = NULL;
 Node *ll_tail = NULL;
 unsigned long heap_size = 0;
+//unsigned long free_size = 0;
+size_t node_size = sizeof(Node);
 // use this function to check my free mem linked list
 void printLL(Node * head) {
     if (head == NULL) {
@@ -24,11 +26,11 @@ void printLL(Node * head) {
 }
 
 // implement linked list check function here
-Node * checkFF(Node *head, size_t size) {
-    Node *curr = head;
-    if (curr == NULL) {
+Node * checkFF(size_t size) {
+    if (ll_head == NULL) {
         return NULL;
     }
+    Node * curr = ll_head;
     while (curr != NULL) {
         if (curr->sum_size - sizeof(Node) >= size) {
             return curr;
@@ -40,66 +42,93 @@ Node * checkFF(Node *head, size_t size) {
 
 void split(Node * curr, size_t size) {
     size_t remaining = curr->sum_size - size - sizeof(Node);
-    // printf("The remaining is %ld\n", remaining);
-    // printf("The Node size is %ld\n", sizeof(Node));
-    // if need to split
     if (remaining > sizeof(Node)) {
-        // printf("need to split\n");
+        // printf -= (sizeof(Node) + size);
+
         Node * remain = (Node *)((void *)curr + sizeof(Node) + size);
         remain->sum_size = remaining;
         remain->next = curr->next;
         remain->prev = curr->prev;
 
-        if (curr == ll_head && curr == ll_tail) {
-            ll_head = remain;
-            ll_tail = remain;
-        }
-        else if (curr == ll_head) {
-            curr->next->prev = remain;
-            ll_head = remain;
-        }
-        else if (curr == ll_tail) {
+        // if (curr == ll_head && curr == ll_tail) {
+        //     ll_head = remain;
+        //     ll_tail = remain;
+        // }
+        // else if (curr == ll_head) {
+        //     curr->next->prev = remain;
+        //     ll_head = remain;
+        // }
+        // else if (curr == ll_tail) {
+        //     curr->prev->next = remain;
+        //     ll_tail = remain;
+        // }
+        // else {
+        //     curr->prev->next = remain;
+        //     curr->next->prev = remain;
+        // }
+        if (curr->prev) {
             curr->prev->next = remain;
-            ll_tail = remain;
         }
         else {
-            curr->prev->next = remain;
+            ll_head = remain; // Update head if curr is the first node
+        }
+
+        if (curr->next) {
             curr->next->prev = remain;
         }
+        else {
+            ll_tail = remain; // Update tail if the current block was the last one
+        }
+
         curr->sum_size = size + sizeof(Node);
+
+        // curr->sum_size -= (size + sizeof(Node));
     }
     // the remains are less than the metadata
     // no need to split
     else {
-        // printf("no need to split\n");
+        // printf -= curr->sum_size;
         // if curr is both the head and tail
-        if (curr == ll_head && curr == ll_tail) {
-            ll_head = NULL;
-            ll_tail = NULL;
-        }
-        // if curr is the head
-        else if (curr == ll_head) {
-            curr->next->prev = NULL;
-            ll_head = curr->next;
-        }
-        else if (curr == ll_tail) {
-            curr->prev->next = NULL;
-            ll_tail = curr->prev;
-        }
-        // if curr is in the middle
-        else {
+        // if (curr == ll_head && curr == ll_tail) {
+        //     ll_head = NULL;
+        //     ll_tail = NULL;
+        // }
+        // // if curr is the head
+        // else if (curr == ll_head) {
+        //     curr->next->prev = NULL;
+        //     ll_head = curr->next;
+        // }
+        // else if (curr == ll_tail) {
+        //     curr->prev->next = NULL;
+        //     ll_tail = curr->prev;
+        // }
+        // // if curr is in the middle
+        // else {
+        //     curr->prev->next = curr->next;
+        //     curr->next->prev = curr->prev;
+        // }
+        // Update links of neighboring nodes
+        if (curr->prev) {
             curr->prev->next = curr->next;
+        } else {
+            ll_head = curr->next; // Update head if curr is the first node
+        }
+
+        if (curr->next) {
             curr->next->prev = curr->prev;
+        } else {
+            ll_tail = curr->prev; // Update tail if curr is the last node
         }
     }
     curr->prev = NULL;
     curr->next = NULL;
 }
 
+
 void *ff_malloc(size_t size) {
-    printLL(ll_head);
+    // printLL(ll_head);
     // if there is no enough
-    Node * ff = checkFF(ll_head, size);
+    Node * ff = checkFF(size);
     
     if (ff == NULL) {
         // printf("Didn't find the valid place!\n");
@@ -107,7 +136,7 @@ void *ff_malloc(size_t size) {
         if (ptr == (void *) -1) {
             return NULL; // sbrk failed
         }
-        heap_size += size + sizeof(Node);
+        heap_size += (size + sizeof(Node));
         // save the meta data
         Node * metadata = (Node * )ptr;
         metadata->next = NULL;
@@ -123,61 +152,69 @@ void *ff_malloc(size_t size) {
         // printf("The valid space is %ld and malloc need %ld\n", ff->sum_size, size+sizeof(Node));
         split(ff, size);
         // printf("now check the ll after spliting\n");
-        printLL(ll_head);
+        // printLL(ll_head);
         return (void *)ff + sizeof(Node);
     }
 }
 
-void merge(Node * curr) {
+// void merge(Node * curr) {
+//     // first check if can merge to the previous one
+//     // if there is an existing prev
+//     if (curr != ll_head && (void *) curr->prev + curr->prev->sum_size == (void *) curr) {
+//         // now merge
+//         curr->prev->next = curr->next;
+//         curr->prev->sum_size += curr->sum_size;
+//         if (curr != ll_tail) {
+//             curr->next->prev = curr->prev;
+//         }
+//         else {
+//             ll_tail = curr->prev;
+//         }
+//         // update after merge
+//         curr = curr->prev;
+//     }
+
+//     // now check if can merge the next one
+//     // if there is an existing next
+//     if (curr != ll_tail && (void *) curr + curr->sum_size == (void *) curr->next) {
+//         // now merge
+//         curr->sum_size += curr->next->sum_size;
+//         if (curr->next != ll_tail) {
+//             curr->next->next->prev = curr;
+//         }
+//         else {
+//             ll_tail = curr;
+//         }
+//         curr->next = curr->next->next;
+//     }
+// }
+
+void merge(Node *curr) {
     // first check if can merge to the previous one
     // if there is an existing prev
-    if (curr != ll_head && (void *) curr->prev + curr->prev->sum_size == (void *) curr) {
-        // printf("prev address: %p\n", (void *) curr->prev);
-        // printf("prev mem size: %ld\n", curr->prev->sum_size);
-        // printf("prev end address: %p\n", (void *) curr->prev + curr->prev->sum_size);
-        // printf("curr address: %p\n", (void *) curr);
-        // printf("expected new size: %ld\n", curr->prev->sum_size + curr->sum_size);
-        // printf("expected new end address: %p\n", (void *) curr->prev + curr->prev->sum_size + curr->sum_size);
-        // now merge
+    if (curr->prev && (void *)curr->prev + curr->prev->sum_size == (void *)curr) {
+        curr->prev->sum_size += curr->sum_size; // Merge with previous
         curr->prev->next = curr->next;
-        curr->prev->sum_size += curr->sum_size;
-        if (curr != ll_tail) {
+        if (curr->next) {
             curr->next->prev = curr->prev;
+        } else {
+            ll_tail = curr->prev; // Update tail if necessary
         }
-        else {
-            ll_tail = curr->prev;
-        }
-        // update after merge
-        curr = curr->prev;
+        curr = curr->prev; // Update current pointer to the merged block
     }
-    printLL(ll_head);
 
-    // now check if can merge the next one
-    // if there is an existing next
-    if (curr != ll_tail && (void *) curr + curr->sum_size == (void *) curr->next) {
-        // printf("curr address: %p\n", (void *) curr);
-        // printf("curr mem size: %ld\n", curr->sum_size);
-        // printf("curr end address: %p\n", (void *) curr + curr->sum_size);
-        // printf("next address: %p\n", (void *) curr->next);
-        // printf("next mem size: %ld\n", curr->next->sum_size);
-        // printf("next end address: %p\n", (void *) curr->next + curr->next->sum_size);
-        // printf("expected new size: %ld\n", curr->sum_size + curr->next->sum_size);
-        // printf("expected new end address: %p\n", (void *) curr + curr->sum_size + curr->next->sum_size);
-        //assert((void *) curr + curr->sum_size + curr->next->sum_size == (void *) curr->next + curr->next->sum_size);
-        // now merge
-        curr->sum_size += curr->next->sum_size;
-        if (curr->next != ll_tail) {
-            curr->next->next->prev = curr;
-        }
-        else {
-            ll_tail = curr;
-        }
+    // Check if the current block can be merged with the next block
+    if (curr->next && (void *)curr + curr->sum_size == (void *)curr->next) {
+        curr->sum_size += curr->next->sum_size; // Merge with next
         curr->next = curr->next->next;
+        if (curr->next) {
+            curr->next->prev = curr;
+        } else {
+            ll_tail = curr; // Update tail if necessary
+        }
     }
-    // printf("curr address: %p\n", (void *) curr);
-    // printf("curr mem size: %ld\n", curr->sum_size);
-    printLL(ll_head);
 }
+
 
 void ff_free(void * ptr) {
     // if free NULL
@@ -194,7 +231,7 @@ void ff_free(void * ptr) {
     if (ll_head == NULL) {
         ll_head = metadata;
         ll_tail = metadata;
-        printLL(ll_head);
+        // printLL(ll_head);
         return;
     }
 
@@ -245,28 +282,24 @@ void ff_free(void * ptr) {
             metadata->next->prev = metadata;
         }
     }
-
     // check if it can merge into others
-    printLL(ll_head);
+    // printLL(ll_head);
     merge(metadata);
-    printLL(ll_head);
+    // printLL(ll_head);
 }
 
-Node *checkBF(Node *head, size_t size) {
-    Node *curr = head;
-    Node *bf = NULL;
-
-    while (curr == NULL) {
+Node * checkBF(size_t size) {
+    if (ll_head == NULL) {
         return NULL;
     }
+    Node * curr = ll_head;
+    Node * bf = NULL;
     while (curr != NULL) {
-        if (curr->sum_size - sizeof(Node) >= size) {
-            if (bf == NULL) {
-                bf = curr;
-            }
-            else if (bf->sum_size > curr->sum_size) {
-                bf = curr;
-            }
+        if (curr->sum_size - sizeof(Node) == size) {
+            return curr;
+        }
+        else if (curr->sum_size - sizeof(Node) > size && (bf == NULL || bf->sum_size > curr->sum_size)) {
+            bf = curr;
         }
         curr = curr->next;
     }
@@ -276,7 +309,7 @@ Node *checkBF(Node *head, size_t size) {
 void * bf_malloc(size_t size) {
     // printLL(ll_head);
     // if there is no enough
-    Node * bf = checkBF(ll_head, size);
+    Node * bf = checkBF(size);
 
     if (bf == NULL) {
         // printf("Didn't find the valid place!\n");
@@ -284,7 +317,7 @@ void * bf_malloc(size_t size) {
         if (ptr == (void *)-1) {
             return NULL; // sbrk failed
         }
-        heap_size += size + sizeof(Node);
+        heap_size += (size + sizeof(Node));
         // save the meta data
         Node *metadata = (Node *)ptr;
         metadata->next = NULL;
@@ -319,6 +352,7 @@ unsigned long get_data_segment_free_space_size() {
     unsigned long free_size = 0;
     while (curr != NULL) {
         free_size += curr->sum_size;
+        curr = curr->next;
     }
     return free_size;
 }
