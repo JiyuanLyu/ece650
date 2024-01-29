@@ -3,8 +3,8 @@
 #include <time.h>
 #include "my_malloc.h"
 
-#define NUM_ITERS    10//100
-#define NUM_ITEMS    100//10000
+#define NUM_ITERS    100
+#define NUM_ITEMS    10000
 
 #ifdef FF
 #define MALLOC(sz) ff_malloc(sz)
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
   const unsigned min_chunks = 4;
   const unsigned max_chunks = 16;
   for (i=0; i < NUM_ITEMS; i++) {
+
     malloc_items[0][i].bytes = ((rand() % (max_chunks - min_chunks + 1)) + min_chunks) * chunk_size;
     malloc_items[1][i].bytes = ((rand() % (max_chunks - min_chunks + 1)) + min_chunks) * chunk_size;
     free_list[i] = i;
@@ -77,35 +78,17 @@ int main(int argc, char *argv[])
   clock_gettime(CLOCK_MONOTONIC, &start_time);
 
   for (i=0; i < NUM_ITERS; i++) {
-    printf("loop 1, i = %d\n", i);
     unsigned malloc_set = i % 2;
     for (j=0; j < NUM_ITEMS; j+=50) {
-      printf("loop 1.1, j = %d\n", j);
-
       for (k=0; k < 50; k++) {
-        printf("loop 1.2, k = %d\n", k);
-        unsigned item_to_free = free_list[j+k];
-        FREE(malloc_items[malloc_set][item_to_free].address);
-        printf("loop 1.2, k = %d\n", k);
+	unsigned item_to_free = free_list[j+k];
+	FREE(malloc_items[malloc_set][item_to_free].address);
       } //for k
-
       for (k=0; k < 50; k++) {
-        printf("loop 1.3, k = %d\n", k);
-        malloc_items[1-malloc_set][j+k].address = (int *)MALLOC(malloc_items[1-malloc_set][j+k].bytes);
-        printf("loop 1.3 end, k = %d\n", k);
+	malloc_items[1-malloc_set][j+k].address = (int *)MALLOC(malloc_items[1-malloc_set][j+k].bytes);
       } //for k
-
-      printf("loop 1.1 end, j = %d\n", j);
     } //for j
-
-    printf("loop 1 end, i = %d\n", i);
-    // if (i >= 9) {
-    //   break;
-    // }
-    printf("now exit the loop");
-  } //for i 
-  printf("exit the loop");
-
+  } //for i
 
   //Stop Time
   clock_gettime(CLOCK_MONOTONIC, &end_time);

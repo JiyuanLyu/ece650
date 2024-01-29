@@ -3,8 +3,8 @@
 #include <time.h>
 #include "my_malloc.h"
 
-#define NUM_ITERS    10//100
-#define NUM_ITEMS    100//10000
+#define NUM_ITERS    100
+#define NUM_ITEMS    10000
 
 #ifdef FF
 #define MALLOC(sz) ff_malloc(sz)
@@ -16,9 +16,9 @@
 #endif
 
 
-double calc_time(struct timespec start, struct timespec end) {
-  double start_sec = (double)start.tv_sec*1000000000.0 + (double)start.tv_nsec;
-  double end_sec = (double)end.tv_sec*1000000000.0 + (double)end.tv_nsec;
+double calc_time(struct timeval start, struct timeval end) {
+  double start_sec = (double)start.tv_sec + (double)start.tv_usec / 1000000.0;
+  double end_sec = (double)end.tv_sec + (double)end.tv_usec / 1000000.0;
 
   if (end_sec < start_sec) {
     return 0;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   unsigned tmp;
   unsigned long data_segment_size;
   unsigned long data_segment_free_space;
-  struct timespec start_time, end_time;
+  struct timeval start_time, end_time;
 
   srand(0);
 
@@ -74,48 +74,30 @@ int main(int argc, char *argv[])
 
 
   //Start Time
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
+  gettimeofday(&start_time, NULL);
 
   for (i=0; i < NUM_ITERS; i++) {
-    printf("loop 1, i = %d\n", i);
     unsigned malloc_set = i % 2;
     for (j=0; j < NUM_ITEMS; j+=50) {
-      printf("loop 1.1, j = %d\n", j);
-
       for (k=0; k < 50; k++) {
-        printf("loop 1.2, k = %d\n", k);
-        unsigned item_to_free = free_list[j+k];
-        FREE(malloc_items[malloc_set][item_to_free].address);
-        printf("loop 1.2, k = %d\n", k);
+	unsigned item_to_free = free_list[j+k];
+	FREE(malloc_items[malloc_set][item_to_free].address);
       } //for k
-
       for (k=0; k < 50; k++) {
-        printf("loop 1.3, k = %d\n", k);
-        malloc_items[1-malloc_set][j+k].address = (int *)MALLOC(malloc_items[1-malloc_set][j+k].bytes);
-        printf("loop 1.3 end, k = %d\n", k);
+	malloc_items[1-malloc_set][j+k].address = (int *)MALLOC(malloc_items[1-malloc_set][j+k].bytes);
       } //for k
-
-      printf("loop 1.1 end, j = %d\n", j);
     } //for j
-
-    printf("loop 1 end, i = %d\n", i);
-    // if (i >= 9) {
-    //   break;
-    // }
-    printf("now exit the loop");
-  } //for i 
-  printf("exit the loop");
-
+  } //for i
 
   //Stop Time
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
+  gettimeofday(&end_time, NULL);
 
   data_segment_size = get_data_segment_size();
   data_segment_free_space = get_data_segment_free_space_size();
   printf("data_segment_size = %lu, data_segment_free_space = %lu\n", data_segment_size, data_segment_free_space);
 
-  double elapsed_ns = calc_time(start_time, end_time);
-  printf("Execution Time = %f seconds\n", elapsed_ns / 1e9);
+  double elapsed_sec = calc_time(start_time, end_time);
+  printf("Execution Time = %f seconds\n", elapsed_sec);
   printf("Fragmentation  = %f\n", (float)data_segment_free_space/(float)data_segment_size);
 
   for (i=0; i < NUM_ITEMS; i++) {

@@ -26,8 +26,8 @@ void bf_free(void *ptr);
 
 // check function will return NULL if there is no fit
 // it will return a pointer to the fitted Node if there is a fit
-Node *checkFF(Node *head, size_t size);
-Node *checkBF(Node *head, size_t size);
+Node *checkFF(size_t size);
+Node *checkBF(size_t size);
 
 unsigned long get_data_segment_size();            // in bytes
 unsigned long get_data_segment_free_space_size(); // in byte
