@@ -197,3 +197,11 @@ void bf_free(void * ptr) {
     // printLL(ll_head);
 }
 
+// 
+void * ts_malloc_lock(size_t size) {
+
+}
+
+void ts_free_lock(void *ptr) {
+
+}
