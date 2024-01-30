@@ -129,8 +129,8 @@ int main(int argc, char *argv[])
     printf("Test passed\n");
   } else {
     printf("Found 2 overlapping allocated regions.\n");
-    printf("Region 1 bounds: start=%llx, end=%llx, size=%dB, idx=%d\n", start, end, malloc_items[i].bytes, i);
-    printf("Region 2 bounds: start=%llx, end=%llx, size=%dB, idx=%d\n", tgt_start, tgt_end, malloc_items[j].bytes, j);
+    printf("Region 1 bounds: start=%p, end=%p, size=%zdB, idx=%d\n", start, end, malloc_items[i].bytes, i);
+    printf("Region 2 bounds: start=%p, end=%p, size=%zdB, idx=%d\n", tgt_start, tgt_end, malloc_items[j].bytes, j);
     printf("Test failed\n");
   } //else
 

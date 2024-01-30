@@ -1,9 +1,13 @@
 #include "my_malloc.h"
 
 // linked list
-Node * ll_head = NULL;
-Node * ll_tail = NULL;
+__thread Node * ll_head = NULL;
+__thread Node * ll_tail = NULL;
 size_t node_size = sizeof(Node);
+
+// hw 2
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 // use this function to check my free mem linked list
 void printLL(Node * head) {
     if (head == NULL) {
@@ -76,6 +80,36 @@ void split(Node * curr, size_t size) {
     curr->next = NULL;
 }
 
+void merge(Node * curr) {
+    // first check if can merge to the previous one
+    // check if there is an existing prev
+    if (curr->prev && (void *) curr->prev + curr->prev->sum_size == (void *) curr) {
+        // now merge
+        curr->prev->next = curr->next;
+        curr->prev->sum_size += curr->sum_size;
+        if (curr->next) {
+            curr->next->prev = curr->prev;
+        } else {
+            ll_tail = curr->prev;
+        }
+        // update after merge
+        curr = curr->prev; 
+    }
+
+    // now check if can merge the next one
+    // check if there is an existing next
+    if (curr->next && (void *) curr + curr->sum_size == (void *) curr->next) {
+        // now merge
+        curr->sum_size += curr->next->sum_size;
+        curr->next = curr->next->next;
+        if (curr->next) {
+            curr->next->prev = curr;
+        } else {
+            ll_tail = curr;
+        }
+    }
+}
+
 Node * checkBF(size_t size) {
     if (ll_head == NULL) {
         return NULL;
@@ -94,17 +128,29 @@ Node * checkBF(size_t size) {
     return bf;
 }
 
-void * bf_malloc(size_t size) {
+void * bf_malloc(size_t size, int sync) {
     // printLL(ll_head);
     // if there is no enough
     Node * bf = checkBF(size);
 
     if (bf == NULL) {
         // printf("Didn't find the valid place!\n");
-        void * ptr = (void *)sbrk(size + sizeof(Node));
-        if (ptr == (void *)-1) {
-            return NULL; // sbrk failed
+        void * ptr;
+        if (sync == 0) {
+            ptr = (void *)sbrk(size + sizeof(Node));
+            if (ptr == (void *)-1) {
+                return NULL; // sbrk failed
+            }
         }
+        else if (sync == 1) {
+            pthread_mutex_lock(&lock);
+            ptr = (void *)sbrk(size + sizeof(Node));
+            if (ptr == (void *)-1) {
+                return NULL; // sbrk failed
+            }
+            pthread_mutex_unlock(&lock);
+        }
+
         // save the meta data
         Node * metadata = (Node *)ptr;
         metadata->next = NULL;
@@ -197,11 +243,26 @@ void bf_free(void * ptr) {
     // printLL(ll_head);
 }
 
-// 
+// lock version
 void * ts_malloc_lock(size_t size) {
-
+    pthread_mutex_lock(&lock);
+    void * ptr = bf_malloc(size, 0);
+    pthread_mutex_unlock(&lock);
+    return ptr;
 }
 
 void ts_free_lock(void *ptr) {
+    pthread_mutex_lock(&lock);
+    bf_free(ptr);
+    pthread_mutex_unlock(&lock);
+}
 
+// sync version
+void * ts_malloc_nolock(size_t size) {
+    void * ptr = bf_malloc(size, 1);
+    return ptr;
+}
+
+void ts_free_nolock(void *ptr) {
+    bf_free(ptr);
 }
