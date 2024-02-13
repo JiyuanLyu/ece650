@@ -142,7 +142,7 @@ void * bf_malloc(size_t size, int sync) {
                 return NULL; // sbrk failed
             }
         }
-        else if (sync == 1) {
+        if (sync == 1) {
             pthread_mutex_lock(&lock);
             ptr = (void *)sbrk(size + sizeof(Node));
             if (ptr == (void *)-1) {
