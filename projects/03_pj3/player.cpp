@@ -20,14 +20,14 @@ int main(int argc, char ** argv) {
 
     // create a host server
     Player playerHost;
-    cout << "create host" << endl;
+    // cout << "create host" << endl;
     playerHost.createHost("");
-    cout << "create host done" << endl;
+    // cout << "create host done" << endl;
     // create a client server
     Player playerClient;
-    cout << "create client" << endl;
+    // cout << "create client" << endl;
     playerClient.createClient(argv[1], argv[2]);
-    cout << "create client done" << endl;
+    // cout << "create client done" << endl;
     int host_fd = playerClient.socket_fd;
 
     // send the port to the ringmaster
@@ -43,21 +43,21 @@ int main(int argc, char ** argv) {
     cout << "Connected as player " << player_id << " out of " << num_players << " total players" << endl;
 
     // receive prev neighbor port and ip(MSG_WAITALL?)
-    cout << "receive nb" << endl;
+    // cout << "receive nb" << endl;
     int prev_nb_port;
     recv(host_fd, &prev_nb_port, sizeof(prev_nb_port), MSG_WAITALL);
-    cout << prev_nb_port << endl;
+    // cout << prev_nb_port << endl;
     char prev_nb_ip[100];
     recv(host_fd, &prev_nb_ip, sizeof(prev_nb_ip), MSG_WAITALL);
-    cout << prev_nb_ip << endl;
-    cout << "receive done" << endl;
+    // cout << prev_nb_ip << endl;
+    // cout << "receive done" << endl;
 
     // connect to prev as client
     Player prevClient;
     // void createClient(const char * hostname, const char * port);
-    cout << "create prev client" << endl;
+    // cout << "create prev client" << endl;
     prevClient.createClient(prev_nb_ip, to_string(prev_nb_port).c_str());
-    cout << "create prev client done" << endl;
+    // cout << "create prev client done" << endl;
     int prev_nb_id = (player_id == 0) ? num_players - 2 : player_id - 1;
     int prev_nb_fd = prevClient.socket_fd;
 
@@ -71,7 +71,6 @@ int main(int argc, char ** argv) {
     send(host_fd, &ready, sizeof(ready), 0);
 
     // start game, ready to receive potato
-    Potato my_potato;
     vector<int> nb_ids;
     nb_ids.push_back(prev_nb_id);
     nb_ids.push_back(next_nb_id);
@@ -84,6 +83,7 @@ int main(int argc, char ** argv) {
     // waiting for the potato
     fd_set game_fds;
     while (true) {
+        Potato my_potato;
         // waiting for the potato
         // using SELECT
         FD_ZERO(&game_fds);
@@ -104,21 +104,23 @@ int main(int argc, char ** argv) {
             }
         }
 
+        // cout << "current my_potato.hops: " << my_potato.hops << endl;
+        // cout << my_potato.traceCounter << endl;
         // if host send 0 hops -> exit
         if (my_potato.hops == 0) {
             break;
         }
-        // continue sending
+        // game end
         if (my_potato.hops == 1) {
             my_potato.hops--;
             my_potato.trace[my_potato.traceCounter] = player_id;
-            my_potato.traceCounter++;
             send(host_fd, &my_potato, sizeof(my_potato), 0);
-            cout << my_potato.traceCounter << endl;
+            // cout << my_potato.traceCounter << endl;
+            // cout << my_potato.trace[my_potato.traceCounter] << endl;
             cout << "I'm it" << endl;
             break;
         }
-        // game end
+        // continue sending
         else {
             my_potato.hops--;
             my_potato.trace[my_potato.traceCounter] = player_id;
@@ -128,13 +130,11 @@ int main(int argc, char ** argv) {
             if (randomNb == 0) {
                 send(nb_fds[0], &my_potato, sizeof(my_potato), 0);
                 cout << "randomNB" << randomNb << endl;
-                cout << my_potato.traceCounter << endl;
                 cout << "Sending potato to " << nb_ids[0] << endl;
             }
             else {
                 send(nb_fds[1], &my_potato, sizeof(my_potato), 0);
                 cout << "randomNB" << randomNb << endl;
-                cout << my_potato.traceCounter << endl;
                 cout << "Sending potato to " << nb_ids[1] << endl;
             }
         }

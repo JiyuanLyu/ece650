@@ -43,18 +43,18 @@ int main(int argc, char ** argv) {
 
     // create host server
     RingMaster host;
-    cout << "create host" << endl;
+    // cout << "create host" << endl;
     host.createHost(argv[1]);
-    cout << "create host done" << endl;
+    // cout << "create host done" << endl;
     // wait people join and send id and player_num
-    cout << "waitjoining" << endl;
+    // cout << "waitjoining" << endl;
     host.waitJoining(num_players);
-    cout << "waitjoining done" << endl;
+    // cout << "waitjoining done" << endl;
     
     // get enough player, now send the neighbor
-    cout << "sendNeighbors" << endl;
+    // cout << "sendNeighbors" << endl;
     host.sendNeighbors(num_players);
-    cout << "sendNeighbors done" << endl;
+    // cout << "sendNeighbors done" << endl;
 
     // now wait for three connected success notifications
     int counter = 0;
@@ -74,21 +74,21 @@ int main(int argc, char ** argv) {
     }
     
     // start playing
-    // if hops = 0
-    if (my_potato.hops == 0) {
-        cout << "Trace of potato:" << endl;
-        for (int i = 0; i < num_players; i++) {
-            send(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
-            cout << i;
-            if (i != num_players-1) {
-                cout << ",";
-            }
-            else {
-                cout << endl;
-            }
-        }
-        return EXIT_SUCCESS;
-    }
+    // // if hops = 0
+    // if (my_potato.hops == 0) {
+    //     cout << "Trace of potato:" << endl;
+    //     for (int i = 0; i < num_players; i++) {
+    //         send(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
+    //         cout << i;
+    //         if (i != num_players-1) {
+    //             cout << ",";
+    //         }
+    //         else {
+    //             cout << endl;
+    //         }
+    //     }
+    //     return EXIT_SUCCESS;
+    // }
 
     // send to random player
     srand((unsigned int)time(NULL) + num_players);
@@ -118,6 +118,14 @@ int main(int argc, char ** argv) {
             break;
         }
     }
+
+    // if hops = 0
+    if (my_potato.hops == 0) {
+        for (int i = 0; i < num_players; i++) {
+            send(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
+        }
+    }
+
     // print message
     my_potato.printPotato();
 
