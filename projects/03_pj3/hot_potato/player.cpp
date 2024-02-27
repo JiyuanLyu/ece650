@@ -58,7 +58,7 @@ int main(int argc, char ** argv) {
     // cout << "create prev client" << endl;
     prevClient.createClient(prev_nb_ip, to_string(prev_nb_port).c_str());
     // cout << "create prev client done" << endl;
-    int prev_nb_id = (player_id == 0) ? num_players - 2 : player_id - 1;
+    int prev_nb_id = (player_id == 0) ? num_players - 1 : player_id - 1;
     int prev_nb_fd = prevClient.socket_fd;
 
     // wait for next to connect
@@ -81,6 +81,7 @@ int main(int argc, char ** argv) {
     nb_fds.push_back(host_fd);
 
     // waiting for the potato
+    srand((unsigned int)time(NULL) + player_id);
     fd_set game_fds;
     while (true) {
         Potato my_potato;
@@ -129,12 +130,12 @@ int main(int argc, char ** argv) {
             int randomNb = rand() % 2;
             if (randomNb == 0) {
                 send(nb_fds[0], &my_potato, sizeof(my_potato), 0);
-                cout << "randomNB" << randomNb << endl;
+                // cout << "randomNB" << randomNb << endl;
                 cout << "Sending potato to " << nb_ids[0] << endl;
             }
             else {
                 send(nb_fds[1], &my_potato, sizeof(my_potato), 0);
-                cout << "randomNB" << randomNb << endl;
+                // cout << "randomNB" << randomNb << endl;
                 cout << "Sending potato to " << nb_ids[1] << endl;
             }
         }
