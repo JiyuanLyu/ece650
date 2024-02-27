@@ -4,6 +4,7 @@
 // implement Server class
 
 void Server::createHost(const char * port) {
+    const char * hostname = NULL;
     int status;
 
     memset(&host_info, 0, sizeof(host_info));
@@ -65,6 +66,7 @@ void Server::createClient(const char * hostname, const char * port) {
         cerr << "  (" << hostname << "," << port << ")" << endl;
         ::exit(EXIT_FAILURE);
     }
+    
     socket_fd = socket(host_info_list->ai_family, 
                 host_info_list->ai_socktype, 
                 host_info_list->ai_protocol);
@@ -77,13 +79,14 @@ void Server::createClient(const char * hostname, const char * port) {
     status = connect(socket_fd, host_info_list->ai_addr, host_info_list->ai_addrlen);
     if (status == -1) {
         cerr << "Error: cannot connect to socket: " << strerror(errno) << endl;
+        cerr << "Status: " << status << endl;
         cerr << "  (" << hostname << "," << port << ")" << endl;
         ::exit(EXIT_FAILURE);
     }
     freeaddrinfo(host_info_list);
 }
 
-int Server::acceptConnection(string ip) {
+int Server::acceptConnection(string * ip) {
     struct sockaddr_storage socket_addr;
     socklen_t socket_addr_len = sizeof(socket_addr);
     int client_connection_fd;
@@ -92,6 +95,9 @@ int Server::acceptConnection(string ip) {
         cerr << "Error: cannot accept connection on socket" << endl;
         ::exit(EXIT_FAILURE);
     }
+    
+    struct sockaddr_in * addr = (struct sockaddr_in *)&socket_addr;
+    *ip = inet_ntoa(addr->sin_addr);
     return client_connection_fd;
 }
 
@@ -113,7 +119,7 @@ void RingMaster::waitJoining(int num_players) {
 
     // wait for port
     for (int i = 0; i < num_players; i++) {
-        player_join_fd = acceptConnection(player_ip);
+        player_join_fd = acceptConnection(&player_ip);
 
         recv(player_join_fd, &player_port, sizeof(player_port), 0);
         player_fds.push_back(player_join_fd);

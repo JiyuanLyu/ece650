@@ -33,10 +33,10 @@ class Potato {
     
     void printPotato() const {
         cout << "Trace of potato:\n";
-        for (size_t i = 0; i <= traceCounter; i++) {
+        for (size_t i = 0; i < traceCounter; i++) {
             cout << this->trace[i] << ",";
         }
-        cout << endl;
+        cout << this->trace[traceCounter] << endl;
     }
 };
 
@@ -46,18 +46,15 @@ class Server {
     int socket_fd;
     struct addrinfo host_info;
     struct addrinfo * host_info_list;
-    const char * hostname = NULL;
+    // const char * hostname = NULL;
     int port;
 
     // default constructor
     Server() : socket_fd(-1),host_info_list(nullptr) {}
     // constructor
-    Server(int _port) : port(_port), hostname(nullptr), socket_fd(-1), status(0), host_info_list(nullptr) {}
+    // Server(int _port) : port(_port), socket_fd(-1), status(0), host_info_list(nullptr) {}
     // destructor
     ~Server() {
-        if (host_info_list != nullptr) {
-            freeaddrinfo(host_info_list);
-        }
         if (socket_fd != -1) {
             close(socket_fd);
         }
@@ -65,7 +62,7 @@ class Server {
 
     void createHost(const char * port);
     void createClient(const char * hostname, const char * port);
-    int acceptConnection(string ip);
+    int acceptConnection(string * ip);
     int getPort(int fd);
 };
 

@@ -1,5 +1,16 @@
 #include "potato.hpp"
 
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <algorithm>
+#include <cstring>
+#include <iostream>
+#include <vector>
+
 // use this function to check the arguments validation 
 void checkargv(int num_players, int num_hops) {
     if (num_players <= 1) {
@@ -33,7 +44,7 @@ int main(int argc, char ** argv) {
     // create host server
     RingMaster host;
     cout << "create host" << endl;
-    host.createHost(argv[2]);
+    host.createHost(argv[1]);
     cout << "create host done" << endl;
     // wait people join and send id and player_num
     cout << "waitjoining" << endl;
@@ -41,7 +52,9 @@ int main(int argc, char ** argv) {
     cout << "waitjoining done" << endl;
     
     // get enough player, now send the neighbor
+    cout << "sendNeighbors" << endl;
     host.sendNeighbors(num_players);
+    cout << "sendNeighbors done" << endl;
 
     // now wait for three connected success notifications
     int counter = 0;
@@ -51,7 +64,7 @@ int main(int argc, char ** argv) {
             recv(host.player_fds[i], &notification, sizeof(notification), 0);
             if (notification == 11111) {
                 counter++;
-                cout << "Player " << i << "is ready to play" << endl;
+                cout << "Player " << i << " is ready to play" << endl;
             }
         }
         if (counter == num_players) {
@@ -81,6 +94,7 @@ int main(int argc, char ** argv) {
     srand((unsigned int)time(NULL) + num_players);
     int randomStarter = rand() % num_players;
     cout << "sending potato to player " << randomStarter << endl;
+    //my_potato.trace[0] = randomStarter;
     send(host.player_fds[randomStarter], &my_potato, sizeof(my_potato), 0);
 
     // waiting for the final potato
