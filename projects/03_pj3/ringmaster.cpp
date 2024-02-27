@@ -18,8 +18,8 @@ int main(int argc, char ** argv) {
         fprintf(stderr, "The program should only take 3 command line argument!\n");
         exit(EXIT_FAILURE);
     }
-    int num_players = atoi(argv[3]);
-    int num_hops = atoi(argv[4]);
+    int num_players = atoi(argv[2]);
+    int num_hops = atoi(argv[3]);
     checkargv(num_players, num_hops);
 
     // create a potato
@@ -30,21 +30,82 @@ int main(int argc, char ** argv) {
     cout << "Players = " << num_players << endl;
     cout << "Hops = " << num_hops << endl;
 
-    // create server
-    RingMaster * host;
-    host->createServer(argv[2]);
+    // create host server
+    RingMaster host;
+    cout << "create host" << endl;
+    host.createHost(argv[2]);
+    cout << "create host done" << endl;
+    // wait people join and send id and player_num
+    cout << "waitjoining" << endl;
+    host.waitJoining(num_players);
+    cout << "waitjoining done" << endl;
+    
+    // get enough player, now send the neighbor
+    host.sendNeighbors(num_players);
 
-    // wait for joining
-    host->waitForPlayers(num_players);
-
-    // people full, now send the id and neighbor
-    host->sendNeighborInfo();
-
-    // waiting for neighbor connection done
-    map<string, int> countConnection;
+    // now wait for three connected success notifications
+    int counter = 0;
+    int notification;
     while (true) {
-        
+        for (int i = 0; i < num_players; i++) {
+            recv(host.player_fds[i], &notification, sizeof(notification), 0);
+            if (notification == 11111) {
+                counter++;
+                cout << "Player " << i << "is ready to play" << endl;
+            }
+        }
+        if (counter == num_players) {
+            cout << "Ready to start the game, ";
+            break;
+        }
     }
+    
+    // start playing
+    // if hops = 0
+    if (my_potato.hops == 0) {
+        cout << "Trace of potato:" << endl;
+        for (int i = 0; i < num_players; i++) {
+            send(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
+            cout << i;
+            if (i != num_players-1) {
+                cout << ",";
+            }
+            else {
+                cout << endl;
+            }
+        }
+        return EXIT_SUCCESS;
+    }
+
+    // send to random player
+    srand((unsigned int)time(NULL) + num_players);
+    int randomStarter = rand() % num_players;
+    cout << "sending potato to player " << randomStarter << endl;
+    send(host.player_fds[randomStarter], &my_potato, sizeof(my_potato), 0);
+
+    // waiting for the final potato
+
+    // use SELECT
+    fd_set final_fds;
+    FD_ZERO(&final_fds);
+    int max_fd = 0;
+    for (int i = 0; i < num_players; i++) {
+        FD_SET(host.player_fds[i], &final_fds);
+        max_fd = (host.player_fds[i] > max_fd) ? host.player_fds[i] : max_fd;
+    }
+    int final_select = select(max_fd + 1, &final_fds, NULL, NULL, NULL);
+    if ((final_select < 0) && (errno != EINTR)) {
+        cerr << "select error" << endl;
+    }
+    // receive potato
+    for (int i = 0; i < num_players; i++) {
+        if (FD_ISSET(host.player_fds[i], &final_fds)) {
+            ssize_t bytes_read = recv(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
+            break;
+        }
+    }
+    // print message
+    my_potato.printPotato();
 
     return EXIT_SUCCESS;
 }
