@@ -26,10 +26,25 @@ int main(int argc, char ** argv) {
     Potato my_potato(num_hops);
 
     // print basic game info
-    cout << "Potato Ringmaster\n" << "Players = " << num_players << "\n";
-    cout << "Hops = " << num_hops << "\n" << endl;
+    cout << "Potato Ringmaster" << endl;
+    cout << "Players = " << num_players << endl;
+    cout << "Hops = " << num_hops << endl;
 
-    //
+    // create server
+    RingMaster * host;
+    host->createServer(argv[2]);
+
+    // wait for joining
+    host->waitForPlayers(num_players);
+
+    // people full, now send the id and neighbor
+    host->sendNeighborInfo();
+
+    // waiting for neighbor connection done
+    map<string, int> countConnection;
+    while (true) {
+        
+    }
 
     return EXIT_SUCCESS;
 }
