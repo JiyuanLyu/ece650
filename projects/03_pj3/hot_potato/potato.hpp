@@ -25,7 +25,7 @@ using namespace std;
 class Potato {
  public:
     int hops;
-    int trace[513];
+    int trace[512];
     size_t traceCounter;
 
     Potato() : hops(0), trace(), traceCounter(0) {};
