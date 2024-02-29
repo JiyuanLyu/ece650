@@ -84,7 +84,8 @@ int main(int argc, char ** argv) {
     srand((unsigned int)time(NULL) + player_id);
     fd_set game_fds;
     while (true) {
-        Potato my_potato;
+        Potato my_potato(0);
+        memset(&my_potato, 0, sizeof(my_potato));
         // waiting for the potato
         // using SELECT
         FD_ZERO(&game_fds);
@@ -115,6 +116,8 @@ int main(int argc, char ** argv) {
         if (my_potato.hops == 1) {
             my_potato.hops--;
             my_potato.trace[my_potato.traceCounter] = player_id;
+            my_potato.traceCounter++;
+            my_potato.printPotato();
             send(host_fd, &my_potato, sizeof(my_potato), 0);
             // cout << my_potato.traceCounter << endl;
             // cout << my_potato.trace[my_potato.traceCounter] << endl;

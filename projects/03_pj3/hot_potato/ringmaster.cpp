@@ -34,7 +34,9 @@ int main(int argc, char ** argv) {
     checkargv(num_players, num_hops);
 
     // create a potato
-    Potato my_potato(num_hops);
+    Potato my_potato(0);
+    memset(&my_potato, 0, sizeof(my_potato));
+    my_potato.hops = num_hops;
 
     // print basic game info
     cout << "Potato Ringmaster" << endl;

@@ -25,18 +25,22 @@ using namespace std;
 class Potato {
  public:
     int hops;
-    int trace[512];
+    int trace[513];
     size_t traceCounter;
 
     Potato() : hops(0), trace(), traceCounter(0) {};
     Potato(int hop_counter) : hops(hop_counter), trace(), traceCounter(0) {};
     
     void printPotato() const {
-        cout << "Trace of potato:\n";
-        for (size_t i = 0; i < traceCounter; i++) {
+        // cout << "Trace counter: " << traceCounter << endl;
+        cout << "Trace of potato:" << endl;
+        if (traceCounter == 0) {
+            return;
+        }
+        for (size_t i = 0; i < traceCounter - 1; i++) {
             cout << this->trace[i] << ",";
         }
-        cout << this->trace[traceCounter] << endl;
+        cout << this->trace[traceCounter - 1] << endl;
     }
 };
 
