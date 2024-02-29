@@ -101,7 +101,6 @@ int main(int argc, char ** argv) {
         for (int i = 0; i < 3; i++) {
             if (FD_ISSET(nb_fds[i], &game_fds)) {
                 bytes_read = recv(nb_fds[i], &my_potato, sizeof(my_potato), 0);
-                my_potato.printPotato();
                 break;
             }
         }
