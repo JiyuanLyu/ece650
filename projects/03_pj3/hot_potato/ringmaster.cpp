@@ -114,11 +114,9 @@ int main(int argc, char ** argv) {
     // receive potato
     for (int i = 0; i < num_players; i++) {
         if (FD_ISSET(host.player_fds[i], &final_fds)) {
-            string done;
-            recv(host.player_fds[i], &done, sizeof(done), 0);
-            cout << done << endl;
-
-
+            // string done;
+            // recv(host.player_fds[i], &done, sizeof(done), 0);
+            // cout << done << endl;
             ssize_t bytes_read = recv(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
             break;
         }
