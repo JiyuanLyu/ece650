@@ -117,7 +117,7 @@ int main(int argc, char ** argv) {
             my_potato.hops--;
             my_potato.trace[my_potato.traceCounter] = player_id;
             my_potato.traceCounter++;
-            my_potato.printPotato();
+            // my_potato.printPotato();
             send(host_fd, &my_potato, sizeof(my_potato), 0);
             // cout << my_potato.traceCounter << endl;
             // cout << my_potato.trace[my_potato.traceCounter] << endl;
