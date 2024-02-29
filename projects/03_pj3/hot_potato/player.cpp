@@ -36,9 +36,9 @@ int main(int argc, char ** argv) {
 
     // receive the num_players and id
     int num_players;
-    recv(host_fd, &num_players, sizeof(num_players), 0);
+    recv(host_fd, &num_players, sizeof(num_players), MSG_WAITALL);
     int player_id;
-    recv(host_fd, &player_id, sizeof(player_id), 0);
+    recv(host_fd, &player_id, sizeof(player_id), MSG_WAITALL);
 
     cout << "Connected as player " << player_id << " out of " << num_players << " total players" << endl;
 
@@ -101,7 +101,7 @@ int main(int argc, char ** argv) {
         }
         for (int i = 0; i < 3; i++) {
             if (FD_ISSET(nb_fds[i], &game_fds)) {
-                bytes_read = recv(nb_fds[i], &my_potato, sizeof(my_potato), 0);
+                bytes_read = recv(nb_fds[i], &my_potato, sizeof(my_potato), MSG_WAITALL);
                 break;
             }
         }

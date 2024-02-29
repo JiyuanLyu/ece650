@@ -63,7 +63,7 @@ int main(int argc, char ** argv) {
     int notification;
     while (true) {
         for (int i = 0; i < num_players; i++) {
-            recv(host.player_fds[i], &notification, sizeof(notification), 0);
+            recv(host.player_fds[i], &notification, sizeof(notification), MSG_WAITALL);
             if (notification == 11111) {
                 counter++;
                 cout << "Player " << i << " is ready to play" << endl;
@@ -116,7 +116,7 @@ int main(int argc, char ** argv) {
     // receive potato
     for (int i = 0; i < num_players; i++) {
         if (FD_ISSET(host.player_fds[i], &final_fds)) {
-            ssize_t bytes_read = recv(host.player_fds[i], &my_potato, sizeof(my_potato), 0);
+            ssize_t bytes_read = recv(host.player_fds[i], &my_potato, sizeof(my_potato), MSG_WAITALL);
             break;
         }
     }

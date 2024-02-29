@@ -121,7 +121,7 @@ void RingMaster::waitJoining(int num_players) {
     for (int i = 0; i < num_players; i++) {
         player_join_fd = acceptConnection(&player_ip);
 
-        recv(player_join_fd, &player_port, sizeof(player_port), 0);
+        recv(player_join_fd, &player_port, sizeof(player_port), MSG_WAITALL);
         player_fds.push_back(player_join_fd);
         player_ports.push_back(player_port);
         player_ips.push_back(player_ip);
