@@ -11,6 +11,8 @@
 #include <iostream>
 #include <vector>
 
+// 512 good version
+
 int main(int argc, char ** argv) {
     // check the inputs
     if (argc != 3) {
