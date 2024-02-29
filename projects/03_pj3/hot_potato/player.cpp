@@ -113,11 +113,15 @@ int main(int argc, char ** argv) {
         }
         // game end
         if (my_potato.hops == 1) {
+            string done = "done";
+            send(host_fd, &done, sizeof(done), 0);
+
             my_potato.hops--;
             my_potato.trace[my_potato.traceCounter] = player_id;
             send(host_fd, &my_potato, sizeof(my_potato), 0);
             // cout << my_potato.traceCounter << endl;
             // cout << my_potato.trace[my_potato.traceCounter] << endl;
+            my_potato.printPotato();
             cout << "I'm it" << endl;
             break;
         }
@@ -126,6 +130,8 @@ int main(int argc, char ** argv) {
             my_potato.hops--;
             my_potato.trace[my_potato.traceCounter] = player_id;
             my_potato.traceCounter++;
+            
+            my_potato.printPotato();
 
             int randomNb = rand() % 2;
             if (randomNb == 0) {
