@@ -131,7 +131,7 @@ void query3(connection *C, string team_name)
     result R(N.exec(query.str()));
     cout << "FIRST_NAME LAST_NAME" << endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-        cout << c[0].as<string>() << c[1].as<string>() << endl;
+        cout << c[0].as<string>() << " " << c[1].as<string>() << endl;
     }
 }
 
@@ -147,7 +147,7 @@ void query4(connection *C, string team_state, string team_color)
     result R(N.exec(query.str()));
     cout << "UNIFORM_NUM FIRST_NAME LAST_NAME" << endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-        cout << c[0].as<int>() << c[1].as<string>() << c[2].as<string>() << endl;
+        cout << c[0].as<int>() << " " << c[1].as<string>() << " " << c[2].as<string>() << endl;
     }
 }
 
@@ -163,6 +163,6 @@ void query5(connection *C, int num_wins)
     result R(N.exec(query.str()));
     cout << "FIRST_NAME LAST_NAME NAME WINS" << endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-        cout << c[0].as<string>() << c[1].as<string>() << c[2].as<string>() << c[3].as<int>() << endl;
+        cout << c[0].as<string>() << " " << c[1].as<string>() << " " << c[2].as<string>() << " " << c[3].as<int>() << endl;
     }
 }
