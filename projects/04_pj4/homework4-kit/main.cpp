@@ -21,7 +21,7 @@ void dropTable(string table, connection * C) {
 void createSTATE(connection * C) {
   string state = 
     "CREATE TABLE STATE ("
-    "STATE_ID INT PRIMARY KEY,"
+    "STATE_ID SERIAL PRIMARY KEY,"
     "NAME VARCHAR(255) NOT NULL"
     ");";
   work W(*C);
@@ -32,7 +32,7 @@ void createSTATE(connection * C) {
 void createCOLOR(connection * C) {
   string color = 
     "CREATE TABLE COLOR ("
-    "COLOR_ID INT PRIMARY KEY,"
+    "COLOR_ID SERIAL PRIMARY KEY,"
     "NAME VARCHAR(255) NOT NULL"
     ");";
   work W(*C);
@@ -43,7 +43,7 @@ void createCOLOR(connection * C) {
 void createTEAM(connection * C) {
   string team = 
     "CREATE TABLE TEAM ("
-    "TEAM_ID INT PRIMARY KEY,"
+    "TEAM_ID SERIAL PRIMARY KEY,"
     "NAME VARCHAR(255) NOT NULL,"
     "STATE_ID INT,"
     "COLOR_ID INT,"
@@ -60,7 +60,7 @@ void createTEAM(connection * C) {
 void createPLAYER(connection * C) {
   string player = 
     "CREATE TABLE PLAYER ("
-    "PLAYER_ID INT PRIMARY KEY,"
+    "PLAYER_ID SERIAL PRIMARY KEY,"
     "TEAM_ID INT,"
     "UNIFORM_NUM INT,"
     "FIRST_NAME VARCHAR(255) NOT NULL,"
@@ -80,17 +80,95 @@ void createPLAYER(connection * C) {
 
 // now insert the table
 void readSTATE(connection * C) {
-  // std::ifstream statefile('state.txt');
-  std::ifstream statefs("state.txt", std::ifstream::in);
+  std::ifstream statefs("state.txt");
   string line;
   if (!statefs.is_open()) {
     cerr << "Failed to open state.txt." << endl;
   }
 
   while (getline(statefs, line)) {
+    int state_id;
+    string name;
+    stringstream ss(line);
+    ss >> state_id >> name;
+    // cout << "State Name: " << name << ", State ID: " << state_id << endl;
+    add_state(C, name);
   }
 
   statefs.close();
+}
+
+void readCOLOR(connection * C) {
+  std::ifstream colorfs("color.txt");
+  string line;
+  if (!colorfs.is_open()) {
+    cerr << "Failed to open color.txt." << endl;
+  }
+
+  while (getline(colorfs, line)) {
+    int color_id;
+    string name;
+    stringstream ss(line);
+    ss >> color_id >> name;
+    // cout << "Color Name: " << name << ", Color ID: " << color_id << endl;
+    add_color(C, name);
+  }
+
+  colorfs.close();
+}
+
+void readTEAM(connection * C) {
+  std::ifstream teamfs("team.txt");
+  string line;
+  if (!teamfs.is_open()) {
+    cerr << "Failed to open team.txt." << endl;
+  }
+
+  while (getline(teamfs, line)) {
+    // NAME, STATE_ID, COLOR_ID, WINS, LOSSES
+    int team_id;
+    string name;
+    int state_id;
+    int color_id;
+    int wins;
+    int losses;
+    stringstream ss(line);
+    ss >> team_id >> name >> state_id >> color_id >> wins >> losses;
+    // cout << "Team Name: " << name << ", State ID: " << state_id << ", Color ID: " << color_id << ", Wins: " << wins << ", Losses: " << losses << endl;
+    add_team(C, name, state_id, color_id, wins, losses);
+  }
+
+  teamfs.close();
+}
+
+void readPLAYER(connection * C) {
+  std::ifstream playerfs("player.txt");
+  string line;
+  if (!playerfs.is_open()) {
+    cerr << "Failed to open player.txt." << endl;
+  }
+
+  while (getline(playerfs, line)) {
+    // TEAM_ID, UNIFORM_NUM, FIRST_NAME, LAST_NAME, MPG, PPG, RPG, APG, SPG, BPG
+    int player_id;
+    int team_id;
+    int uniform_num;
+    string first_name;
+    string last_name;
+    int mpg;
+    int ppg;
+    int rpg;
+    int apg;
+    double spg;
+    double bpg;
+    stringstream ss(line);
+    ss >> player_id >> team_id >> uniform_num >> first_name >> last_name >> mpg >> ppg >> rpg >> apg >> spg >> bpg;
+    // cout << "Player Team ID: " << team_id << ", Uniform_NUM: " << uniform_num << ", FIRST_NAME: " << first_name << ", LAST_NAME: " << last_name
+    // << ", MPG: " << mpg << ", PPG: " << ppg << ", RPG: " << rpg << ", APG: " << apg << ", SPG: " << spg << ", BPG: " << bpg << endl;
+    add_player(C, team_id, uniform_num, first_name, last_name, mpg, ppg, rpg, apg, spg, bpg);
+  }
+
+  playerfs.close();
 }
 
 int main (int argc, char *argv[]) 
@@ -133,6 +211,10 @@ int main (int argc, char *argv[])
   createPLAYER(C);
 
   // insert table with corresponding files
+  readSTATE(C);
+  readCOLOR(C);
+  readTEAM(C);
+  readPLAYER(C);
 
   exercise(C);
 
