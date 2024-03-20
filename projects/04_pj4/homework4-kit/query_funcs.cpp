@@ -4,21 +4,44 @@
 void add_player(connection *C, int team_id, int jersey_num, string first_name, string last_name,
                 int mpg, int ppg, int rpg, int apg, double spg, double bpg)
 {
+    work W(*C);
+    stringstream player;
+    player << "INSERT INTO PLAYER (TEAM_ID, UNIFORM_NUM, FIRST_NAME, LAST_NAME, MPG, PPG, RPG, APG, SPG, BPG) VALUES ("
+    << team_id << ", " << jersey_num << ", " << W.quote(first_name) << ", " << W.quote(last_name) << ", " 
+    << mpg << ", " << ppg << ", " << rpg << ", " << apg << ", " << spg << ", " << bpg << ");";
+    W.exec(player.str());
+    W.commit();
 }
 
 
 void add_team(connection *C, string name, int state_id, int color_id, int wins, int losses)
 {
+    work W(*C);
+    stringstream team;
+    team << "INSERT INTO TEAM (NAME, STATE_ID, COLOR_ID, WINS, LOSSES) VALUES ("
+    << W.quote(name) << ", " << state_id << ", " << color_id << ", " << wins << ", " << losses << ");";
+    W.exec(team.str());
+    W.commit();
 }
 
 
 void add_state(connection *C, string name)
 {
+    work W(*C);
+    stringstream state;
+    state << "INSERT INTO STATE (NAME) VALUES (" << W.quote(name) << ");";
+    W.exec(state.str());
+    W.commit();
 }
 
 
 void add_color(connection *C, string name)
 {
+    work W(*C);
+    stringstream color;
+    color << "INSERT INTO COLOR (NAME) VALUES (" << W.quote(name) << ");";
+    W.exec(color.str());
+    W.commit();
 }
 
 /*

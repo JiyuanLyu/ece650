@@ -1,5 +1,7 @@
 #include <iostream>
 #include <pqxx/pqxx>
+#include <fstream>
+#include <string>
 
 #include "exerciser.h"
 
@@ -79,16 +81,16 @@ void createPLAYER(connection * C) {
 // now insert the table
 void readSTATE(connection * C) {
   // std::ifstream statefile('state.txt');
-  std::ifstream statefs;
-  statefs.open('state.txt', std::ifstream::in);
+  std::ifstream statefs("state.txt", std::ifstream::in);
   string line;
-  if (!statefile.is_open()) {
+  if (!statefs.is_open()) {
     cerr << "Failed to open state.txt." << endl;
   }
-  while (getline(statefile, line)) {
 
+  while (getline(statefs, line)) {
   }
-  statefile.close();
+
+  statefs.close();
 }
 
 int main (int argc, char *argv[]) 
