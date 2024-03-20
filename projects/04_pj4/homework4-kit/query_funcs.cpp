@@ -100,7 +100,7 @@ void query1(connection *C,
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
         cout << c[0].as<int>() << " " << c[1].as<int>() << " " << c[2].as<int>() << " " << c[3].as<string>() << " "
         << c[4].as<string>() << " " << c[5].as<int>() << " " << c[6].as<int>() << " " << c[7].as<int>() << " "
-        << c[8].as<int>() << " " << fixed << setprecision(1) << c[9].as<double>() << " " << c[10].as<double>() << endl;
+        << c[8].as<int>() << " " << fixed << setprecision(1) << c[9].as<double>() << " " << fixed << setprecision(1) << c[10].as<double>() << endl;
     }
 }
 
