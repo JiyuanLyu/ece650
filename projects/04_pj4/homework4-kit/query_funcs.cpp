@@ -109,10 +109,8 @@ void query2(connection *C, string team_color)
 {
     work W(*C);
     stringstream query;
-    query << "SELECT TEAM.NAME FROM TEAM, COLOR "
-    << "WHERE TEAM.COLOR_ID = COLOR.COLOR_ID "
-    << "AND COLOR.NAME = " << W.quote(team_color) << ";";
-    // W.commit();
+    query << "SELECT TEAM.NAME FROM TEAM, COLOR WHERE TEAM.COLOR_ID = COLOR.COLOR_ID AND COLOR.NAME = " << W.quote(team_color) << ";";
+    W.commit();
     nontransaction N(*C);
     result R(N.exec(query.str()));
     cout << "NAME" << endl;
@@ -126,57 +124,30 @@ void query3(connection *C, string team_name)
 {
     work W(*C);
     stringstream query;
-    query << "SELECT PLAYER.FIRST_NAME, PLAYER.LAST_NAME "
-    << "FROM PLAYER, TEAM "
-    << "WHERE TEAM.TEAM_ID = PLAYER.TEAM_ID "
-    << "AND TEAM.NAME = " << W.quote(team_name) 
+    query << "SELECT PLAYER.FIRST_NAME, PLAYER.LAST_NAME FROM PLAYER, TEAM WHERE TEAM.TEAM_ID = PLAYER.TEAM_ID AND TEAM.NAME = " << W.quote(team_name) 
     << " ORDER BY PPG DESC;";
-    // W.commit();
+    W.commit();
     nontransaction N(*C);
     result R(N.exec(query.str()));
     cout << "FIRST_NAME LAST_NAME" << endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-        cout << c[0].as<string>() << " " << c[1].as<string>() << endl;
+        cout << c[0].as<string>() << c[1].as<string>() << endl;
     }
 }
-
-// // query4(): show uniform number, first name and last name of each player that plays in the indicated state and wears the indicated uniform color
-// void query4(connection *C, string team_state, string team_color)
-// {
-//     work W(*C);
-//     stringstream query;
-//     query << "SELECT PLAYER.UNIFORM_NUM, PLAYER.FIRST_NAME, PLAYER.LAST_NAME "
-//     << "FROM PLAYER, TEAM, STATE, COLOR "
-//     << "WHERE TEAM.TEAM_ID = PLAYER.TEAM_ID AND TEAM.STATE_ID = STATE.STATE_ID AND TEAM.COLOR_ID = COLOR.COLOR_ID "
-//     << "AND STATE.NAME = " << W.quote(team_state)
-//     << " AND COLOR.NAME = " << W.quote(team_color) << ";";
-//     // W.commit();
-//     nontransaction N(*C);
-//     result R(N.exec(query.str()));
-//     cout << "UNIFORM_NUM FIRST_NAME LAST_NAME" << endl;
-//     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-//         cout << c[0].as<int>() << c[1].as<string>() << c[2].as<string>() << endl;
-//     }
-// }
 
 // query4(): show uniform number, first name and last name of each player that plays in the indicated state and wears the indicated uniform color
 void query4(connection *C, string team_state, string team_color)
 {
     work W(*C);
     stringstream query;
-    query << "SELECT PLAYER.UNIFORM_NUM, PLAYER.FIRST_NAME, PLAYER.LAST_NAME "
-    << "FROM PLAYER "
-    << "JOIN TEAM ON PLAYER.TEAM_ID = TEAM.TEAM_ID "
-    << "JOIN STATE ON TEAM.STATE_ID = STATE.STATE_ID "
-    << "JOIN COLOR ON TEAM.COLOR_ID = COLOR.COLOR_ID "
-    << "WHERE STATE.NAME = " << W.quote(team_state)
-    << " AND COLOR.NAME = " << W.quote(team_color) << ";";
-    // W.commit();
+    query << "SELECT PLAYER.UNIFORM_NUM, PLAYER.FIRST_NAME, PLAYER.LAST_NAME FROM PLAYER, TEAM, STATE, COLOR WHERE TEAM.TEAM_ID = PLAYER.TEAM_ID AND TEAM.STATE_ID = STATE.STATE_ID"
+    << " AND TEAM.COLOR_ID = COLOR.COLOR_ID AND STATE.NAME = " << W.quote(team_state) << " AND COLOR.NAME = " << W.quote(team_color) << ";";
+    W.commit();
     nontransaction N(*C);
     result R(N.exec(query.str()));
     cout << "UNIFORM_NUM FIRST_NAME LAST_NAME" << endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-        cout << c[0].as<int>() << " " << c[1].as<string>() << " " << c[2].as<string>() << endl;
+        cout << c[0].as<int>() << c[1].as<string>() << c[2].as<string>() << endl;
     }
 }
 
@@ -185,15 +156,13 @@ void query5(connection *C, int num_wins)
 {
     work W(*C);
     stringstream query;
-    query << "SELECT PLAYER.FIRST_NAME, PLAYER.LAST_NAME, TEAM.NAME, TEAM.WINS "
-    << "FROM PLAYER, TEAM "
-    << "WHERE TEAM.TEAM_ID = PLAYER.TEAM_ID "
-    << "AND TEAM.WINS > " << num_wins << ";";
-    // W.commit();
+    query << "SELECT PLAYER.FIRST_NAME, PLAYER.LAST_NAME, TEAM.NAME, TEAM.WINS FROM PLAYER, TEAM WHERE TEAM.TEAM_ID = PLAYER.TEAM_ID AND TEAM.WINS > "
+    << num_wins << ";";
+    W.commit();
     nontransaction N(*C);
     result R(N.exec(query.str()));
     cout << "FIRST_NAME LAST_NAME NAME WINS" << endl;
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-        cout << c[0].as<string>() << " " << c[1].as<string>() << " " << c[2].as<string>() << " " << c[3].as<int>() << endl;
+        cout << c[0].as<string>() << c[1].as<string>() << c[2].as<string>() << c[3].as<int>() << endl;
     }
 }
