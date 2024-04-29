@@ -9,4 +9,8 @@ void exercise(connection *C)
         0, 0, 0,
         0, 0, 0,
         0, 0, 0);
+    query2(C, "DarkBlue");
+    query3(C, "Duke");
+    query4(C, "NC", "DarkBlue");
+    query5(C, 12);
 }
