@@ -11,23 +11,29 @@
 
 // here write a function to copy the source file to the destination path
 void copy_file(const char *src, const char *dest) {
-    int src_fd, dest_fd;
-    ssize_t n_read, n_written;
+    int src_fd;
+    int dest_fd;
+    ssize_t n_read;
+    ssize_t n_written;
     char buffer[1024];
     
+    // check if it can open the source file
     src_fd = open(src, O_RDONLY);
     if (src_fd < 0) {
         perror("Failed to open source file");
         exit(EXIT_FAILURE);
     }
     
+    // check if it can open the dest file
     dest_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (dest_fd < 0) {
         perror("Failed to open destination file");
+        // remember to close the source file
         close(src_fd);
         exit(EXIT_FAILURE);
     }
     
+    // rewrite the dest with the source
     while ((n_read = read(src_fd, buffer, sizeof(buffer))) > 0) {
         n_written = write(dest_fd, buffer, n_read);
         if (n_written != n_read) {
