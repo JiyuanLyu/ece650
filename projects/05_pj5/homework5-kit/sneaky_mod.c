@@ -41,6 +41,7 @@ asmlinkage int (*original_openat)(struct pt_regs *);
 asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 {
   // Implement the sneaky part here
+  
   return (*original_openat)(regs);
 }
 
