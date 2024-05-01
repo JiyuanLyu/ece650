@@ -929,7 +929,6 @@ deps_/home/jl1230/ece650/ece650/projects/05_pj5/homework5-kit/sneaky_mod.o := \
     $(wildcard include/config/kallsyms/all.h) \
   arch/x86/include/asm/sections.h \
   include/asm-generic/sections.h \
-  include/linux/dirent.h \
 
 /home/jl1230/ece650/ece650/projects/05_pj5/homework5-kit/sneaky_mod.o: $(deps_/home/jl1230/ece650/ece650/projects/05_pj5/homework5-kit/sneaky_mod.o)
 
