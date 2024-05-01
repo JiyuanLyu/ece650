@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <termios.h>
 
 #define TEMP_PASSWD_FILE "/tmp/passwd"
 
@@ -79,8 +80,16 @@ int main() {
     system(cmd);
     
     // wait for the q to quit
+    // char c;
+    // while ((c = getchar()) != 'q') {
+    // }
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     char c;
-    while ((c = getchar()) != 'q') {
+    while (read(STDIN_FILENO, &c, 1) > 0 && c != 'q') {
     }
     
     system("rmmod sneaky_mod.ko");
