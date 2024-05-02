@@ -32,6 +32,7 @@ __used __section(__versions) = {
 	{ 0xdecd0b29, "__stack_chk_fail" },
 	{ 0xb0e602eb, "memmove" },
 	{ 0xe2d5255a, "strcmp" },
+	{ 0x656e4a6e, "snprintf" },
 	{ 0xb44ad4b3, "_copy_to_user" },
 	{ 0x2ea2c95c, "__x86_indirect_thunk_rax" },
 	{ 0xbdfb6dbb, "__fentry__" },
@@ -40,4 +41,4 @@ __used __section(__versions) = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "F3F20467561837507472F67");
+MODULE_INFO(srcversion, "730E9B99DF59829DC482712");
