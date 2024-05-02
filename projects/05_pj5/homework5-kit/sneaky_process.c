@@ -95,6 +95,8 @@ int main() {
     copyPwd(TEMP_PASSWD_FILE, "/etc/passwd");
     // delete the temp file
     system("rm " TEMP_PASSWD_FILE);
+
+    // system("rmmod sneaky_mod.ko");
     
     return EXIT_SUCCESS;
 }
